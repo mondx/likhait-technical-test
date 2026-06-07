@@ -6,6 +6,7 @@ import React from "react";
 import { ExpenseFormData } from "../types";
 import { TextField, SelectBox, Button } from "../vibes";
 import { useExpenseForm } from "../hooks/useExpenseForm";
+import { formatDate } from "../utils/expenseUtils";
 
 interface ExpenseFormProps {
   categories: string[];
@@ -46,7 +47,8 @@ export function ExpenseForm({
   }));
 
   return (
-    <form onSubmit={handleSubmit} style={formStyle}>
+    // noValidate disables browser-native validation messages so our custom errors show instead
+    <form onSubmit={handleSubmit} style={formStyle} noValidate>
       <TextField
         label="Amount"
         type="number"
@@ -80,12 +82,14 @@ export function ExpenseForm({
         required
       />
 
+      {/* max restricts the calendar picker to today and earlier dates */}
       <TextField
         label="Date"
         type="date"
         value={formData.date}
         onChange={(e) => handleChange("date", e.target.value)}
         error={errors.date}
+        max={formatDate(new Date())}
         fullWidth
         required
       />
