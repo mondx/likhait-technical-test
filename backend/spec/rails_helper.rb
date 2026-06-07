@@ -1,10 +1,11 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
-ENV['RAILS_ENV'] ||= 'test'
+ENV['RAILS_ENV'] = 'test'
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
+require 'database_cleaner/active_record'
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -35,10 +36,26 @@ RSpec.configure do |config|
     Rails.root.join('spec/fixtures')
   ]
 
-  # If you're not using ActiveRecord, or you'd prefer not to run each of your
-  # examples within a transaction, remove the following line or assign false
-  # instead of true.
-  config.use_transactional_fixtures = true
+  # Set to false to use DatabaseCleaner for test isolation instead of
+  # wrapping each example in a transaction.
+  config.use_transactional_fixtures = false
+
+  # Set truncation strategy once and perform an initial clean before any
+  # tests run, ensuring the test database starts from a known empty state.
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :truncation
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  # Start a clean slate before each test.
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  # Truncate all tables after each test to prevent data leaking between examples.
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end
 
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false
