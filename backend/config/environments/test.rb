@@ -64,4 +64,8 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Remove host authorization so request specs can make requests using RSpec's
+  # default test host (www.example.com) without being blocked with a 403.
+  config.middleware.delete ActionDispatch::HostAuthorization
 end
